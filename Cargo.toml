@@ -1,6 +1,6 @@
 [package]
 name = "pam_oauth2_device"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "PAM module that provides OAuth2.0 Device Authorization Grant"
@@ -10,8 +10,8 @@ description = "PAM module that provides OAuth2.0 Device Authorization Grant"
 name = "pam_oauth2_device"
 crate-type = ["cdylib", "lib"]
 [dependencies]
-chrono = "0.4.40"
-ctor = "0.4.1"
+chrono = "0.4.41"
+ctor = "0.4.2"
 log = "0.4.27"
 oauth2 = {version = "4.4.2", features = ["curl"]}
 # Using own fork of pam-bindings because the original lib causes mem leaks and has bug in release mode.
