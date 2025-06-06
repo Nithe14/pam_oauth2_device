@@ -26,7 +26,7 @@ fn common_error() {
 
     assert_eq!(
         logger.msg(),
-        "Failed to intropsect user token\n    caused by: Server returned error response"
+        "Failed to intropsect user token\n    caused by: Server returned error response: invalid_client: This client authentication was invalid"
     );
 }
 
@@ -47,7 +47,7 @@ fn other_error() {
 
     assert_eq!(
         logger.msg(),
-        "Failed to intropsect user token\n    caused by: Request failed\n    caused by: curl request failed\n    caused by: [52] Server returned nothing (no headers, no data) (Empty reply from server)"
+        "Failed to intropsect user token\n    caused by: Request failed\n    caused by: client error\n    caused by: [52] Server returned nothing (no headers, no data) (Empty reply from server)"
     );
 }
 #[test]

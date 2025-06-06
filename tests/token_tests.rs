@@ -43,7 +43,7 @@ fn token_basic_err() {
 
     assert_eq!(
         logger.msg(),
-        "Failed to recive user token\n    caused by: Server returned error response"
+        "Failed to recive user token\n    caused by: Server returned error response: access_denied: Authorization for user is still pending."
     );
 }
 
@@ -63,6 +63,6 @@ fn token_other_err() {
 
     assert_eq!(
         logger.msg(),
-        "Failed to recive user token\n    caused by: Server returned error response"
+        "Failed to recive user token\n    caused by: Server returned error response: access_denied: Authorization for user is still pending."
     );
 }

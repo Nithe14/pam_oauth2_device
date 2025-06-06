@@ -2,19 +2,25 @@ use std::time::Duration;
 
 use crate::config::Config;
 use chrono::{DateTime, Utc};
-use oauth2::basic::{BasicClient, BasicTokenType};
-use oauth2::curl::http_client;
-use oauth2::devicecode::StandardDeviceAuthorizationResponse;
+use oauth2::basic::{BasicClient, BasicTokenResponse};
 use oauth2::{
     AccessToken, AuthUrl, ClientId, ClientSecret, DeviceAuthorizationUrl, IntrospectionUrl,
-    RedirectUrl, Scope, TokenIntrospectionResponse, TokenResponse, TokenUrl,
+    RedirectUrl, Scope, TokenIntrospectionResponse, TokenUrl,
 };
+use oauth2::{CurlHttpClient as http_client, EndpointSet};
+use oauth2::{EndpointNotSet, StandardDeviceAuthorizationResponse};
 
 type DynErr = Box<dyn std::error::Error>;
 
 #[derive(Debug)]
 pub struct OAuthClient {
-    client: BasicClient,
+    client: BasicClient<
+        EndpointSet,    //HasAuthUrl
+        EndpointSet,    //HasDeviceAuthUrl
+        EndpointSet,    //HasIntrospectionUrl
+        EndpointNotSet, //HasRevocationUrl
+        EndpointSet,    //HasTokenUrl
+    >,
     scopes: Vec<Scope>,
 }
 
@@ -33,9 +39,12 @@ impl OAuthClient {
             .map(|s| Scope::new(s.to_string()))
             .collect();
 
-        let client = BasicClient::new(client_id, Some(client_secret), auth_url, Some(token_url))
+        let client = BasicClient::new(client_id)
+            .set_client_secret(client_secret)
+            .set_auth_uri(auth_url)
+            .set_token_uri(token_url)
             .set_device_authorization_url(device_url)
-            .set_introspection_uri(introspect_url)
+            .set_introspection_url(introspect_url)
             .set_redirect_uri(redirect_url);
 
         Ok(Self { client, scopes })
@@ -48,9 +57,9 @@ impl OAuthClient {
     pub fn device_code(&self) -> Result<StandardDeviceAuthorizationResponse, DynErr> {
         let details: StandardDeviceAuthorizationResponse = self
             .client
-            .exchange_device_code()?
+            .exchange_device_code()
             .add_scopes(self.scopes.clone())
-            .request(http_client)?;
+            .request(&http_client)?;
         Ok(details)
     }
 
@@ -58,9 +67,9 @@ impl OAuthClient {
         &self,
         details: &StandardDeviceAuthorizationResponse,
         timeout: Option<Duration>,
-    ) -> Result<impl TokenResponse<BasicTokenType>, DynErr> {
+    ) -> Result<BasicTokenResponse, DynErr> {
         let token = self.client.exchange_device_access_token(details).request(
-            http_client,
+            &http_client,
             std::thread::sleep,
             timeout,
         )?;
@@ -70,14 +79,14 @@ impl OAuthClient {
     pub fn introspect(
         &self,
         token: &AccessToken,
-    ) -> Result<impl TokenIntrospectionResponse<BasicTokenType>, DynErr> {
-        let introspect = self.client.introspect(token)?.request(http_client)?;
+    ) -> Result<impl TokenIntrospectionResponse, DynErr> {
+        let introspect = self.client.introspect(token).request(&http_client)?;
         Ok(introspect)
     }
 
     pub fn validate_token(
         &self,
-        token: &impl TokenIntrospectionResponse<BasicTokenType>,
+        token: &impl TokenIntrospectionResponse,
         local_user: &str,
     ) -> bool {
         if !token.active() {

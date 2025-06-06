@@ -96,6 +96,6 @@ fn err_500_device() {
     let _ = resp.map_err(|err| TestLogger::handle_error(err, "Failed to get device code"));
     assert_eq!(
         logger.msg(),
-        "Failed to get device code\n    caused by: Server returned error response"
+        "Failed to get device code\n    caused by: Server returned error response: 500 Internal Server Error"
     );
 }

@@ -1,6 +1,6 @@
 [package]
 name = "pam_oauth2_device"
-version = "0.3.2"
+version = "0.4.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "PAM module that provides OAuth2.0 Device Authorization Grant"
@@ -13,7 +13,8 @@ crate-type = ["cdylib", "lib"]
 chrono = "0.4.41"
 ctor = "0.4.2"
 log = "0.4.27"
-oauth2 = {version = "4.4.2", features = ["curl"]}
+#oauth2 = {version = "4.4.2", features = ["curl"]}
+oauth2 = {version = "5.0.0", features = ["curl"]}
 # Using own fork of pam-bindings because the original lib causes mem leaks and has bug in release mode.
 # See https://crates.io/crates/pam-bindings for more info.
 pam-bindings = { git = "https://github.com/Nithe14/pam-rs.git" }
