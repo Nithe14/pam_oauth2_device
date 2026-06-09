@@ -1,6 +1,6 @@
 [package]
 name = "pam_oauth2_device"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "PAM module that provides OAuth2.0 Device Authorization Grant"
