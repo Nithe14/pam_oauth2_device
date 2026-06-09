@@ -11,7 +11,7 @@ name = "pam_oauth2_device"
 crate-type = ["cdylib", "lib"]
 [dependencies]
 chrono = "0.4.45"
-ctor = "0.4.3"
+dtor = "1.0.5"
 log = "0.4.32"
 #oauth2 = {version = "4.4.2", features = ["curl"]}
 oauth2 = {version = "5.0.0", features = ["curl"]}

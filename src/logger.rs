@@ -1,4 +1,4 @@
-use ctor::dtor;
+use dtor::dtor;
 use log::LevelFilter;
 use log::Log;
 
