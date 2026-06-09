@@ -8,7 +8,7 @@ This PAM module authenticates users using [OAuth 2.0 Device Authorization Grant]
 Only the `auth` PAM module type is implemented in this repo. The `account` type will consistently return success for testing purposes.
 
 This code relies heavily on two libraries:
-- [pam-bindings](https://github.com/Nithe14/pam-rs.git) - My own fork of Rust interface to the PAM framework (See [original crate](https://crates.io/crates/pam-bindings) for more details)
+- [pam-bindings](https://github.com/lvkv/pam-rs) - Rust interface to the PAM framework (See [crate](https://crates.io/crates/pam-bindings) for more details)
 - [oauth2](https://docs.rs/oauth2/latest/oauth2/) - A dedicated, strongly-typed Rust OAuth2 client library
 
 **Tested only with AlmaLinux 9.\* and Keycloak.**
@@ -32,11 +32,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 apt install build-essential libpam-dev libssl-dev
 ```
 ## Installation
-You can install it with provided RPM:
-```shell
-wget https://github.com/Nithe14/pam_oauth2_device/releases/download/0.3.0/pam_oauth2_device.so-0.3.0-1.x86_64.rpm
-rpm -i pam_oauth2_device.so-0.3.0-1.x86_64.rpm
-```
 
 You can use the provided Makefile:
 ```shell
@@ -51,6 +46,56 @@ cargo test [--release]
 cargo build [--release]
 ```
 The module file should then be located at either `target/debug/libpam_oauth2_device.so` or `target/release/libpam_oauth2_device.so`, and it can be copy to the PAM modules path (`/lib64/security/`).
+
+## Testing with Docker
+
+Before building the image, you must create a local configuration file:
+```shell
+cp example-config.json config.json
+# Edit config.json with your OAuth2 provider data
+```
+
+Build the image:
+```shell
+# Standard build (creates default user 'test')
+docker buildx build -t pam_oauth2_device --load .
+
+# Alternative: Build with a custom test user (e.g., 'john')
+# docker buildx build --build-arg TEST_USER=john -t pam_oauth2_device --load .
+```
+Or build just with docker build command.
+
+### Standard usage example
+Run the container in the background 
+```shell
+# 1. Start the container
+docker run --rm -d \
+  --name pam-alma-test \
+  --cap-add=SYS_PTRACE \
+  --security-opt label=disable \
+  -p 2222:22 \
+  pam_oauth2_device
+
+# 2. Watch module logs
+docker logs -f pam-alma-test
+
+# 3. Connect from another terminal
+ssh test@localhost -p 2222
+```
+
+*Note: Replace test with your custom username if you modified the TEST_USER build argument.*
+
+### Memory leak analysis with Valgrind 
+To check the PAM module for memory leaks, execute the pre-compiled pam_test binary inside the container using Valgrind.
+```shell
+docker run --rm -it \
+  --name pam-alma-valgrind \
+  --cap-add=SYS_PTRACE \
+  --security-opt label=disable \
+  pam_oauth2_device \
+  valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes /usr/libexec/pam_test test sshd
+```
+*Note: Replace test with your custom username if you modified the TEST_USER build argument.*
 
 ## Configuration
 #### Arguments
