@@ -14,7 +14,7 @@ This code relies heavily on two libraries:
 **Tested only with AlmaLinux 9.\* and Keycloak.**
 
 ##  Requirements
-- rustc >= 1.81.0
+- rustc >= 1.88.0
 - cargo
 - gcc
 - libpam-devel
