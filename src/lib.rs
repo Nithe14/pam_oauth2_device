@@ -48,6 +48,8 @@ impl PamHooks for PamOAuth2Device {
             PamResultCode::PAM_SYSTEM_ERR
         );
 
+        let local_username = pam_try!(pamh.get_user(None));
+
         let conv = match pamh.get_item::<Conv>() {
             Ok(Some(conv)) => conv,
             Ok(None) => {
@@ -60,7 +62,6 @@ impl PamHooks for PamOAuth2Device {
             }
         };
 
-        let local_username = pam_try!(pamh.get_user(None));
         log::info!("Trying to authenticate user: {local_username}");
 
         let oauth_client = try_or_handle!(
